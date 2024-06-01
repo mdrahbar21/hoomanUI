@@ -1,6 +1,6 @@
 import { getAuth } from "firebase-admin/auth";
 import { initializeApp, cert } from "firebase-admin/app";
-import serviceAccount from "../../../../hooman-a960d-firebase-adminsdk-fqray-1b124e9e1f.json";
+import serviceAccount from "../../../../../hooman-a960d-firebase-adminsdk-fqray-1b124e9e1f.json";
 
 if (!getAuth().apps.length) {
   initializeApp({
