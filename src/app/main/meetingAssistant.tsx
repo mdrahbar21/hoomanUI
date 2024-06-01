@@ -45,25 +45,36 @@ const MeetingAssistant = () => {
     <div>
     <h1 className="text-2xl font-bold text-white">Meeting Assistant</h1>
     <p className="text-white">Customize your meeting assistant</p>
-
-    
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="bg-black text-white p-8 grid gap-6">
       <FormField name="agentName" control={form.control} render={({ field }) => (
         <FormItem>
           <FormLabel>Agent Name</FormLabel>
           <FormControl>
-            <Input {...field} placeholder="Give your agent an identity" />
+            <Input {...field} placeholder="Give your agent an identity" className='w-3/4' />
           </FormControl>
           <FormMessage>{form.formState.errors.agentName?.message}</FormMessage>
         </FormItem>
       )} />
-      <FormField name="voice" control={form.control} render={({ field }) => (
+      <div className='flex '>
+        <div className='w-3/4'>
+      <FormField name="introMessage" control={form.control} render={({ field }) => (
         <FormItem>
+          <FormLabel>Intro Message</FormLabel>
+          <FormControl>
+            <Input {...field} placeholder="Hey, this is Hooman..." />
+          </FormControl>
+          <FormMessage>{form.formState.errors.introMessage?.message}</FormMessage>
+        </FormItem>
+      )} />
+      </div>
+      <div className='w-1/5 space-x-1'>
+      <FormField name="voice" control={form.control} render={({ field }) => (
+        <FormItem >
           <FormLabel>Select Voice</FormLabel>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <SelectTrigger>
-              <SelectValue placeholder="Select a voice" />
+              <SelectValue  placeholder="Select a voice" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Kajal">Kajal (default voice)</SelectItem>
@@ -72,6 +83,8 @@ const MeetingAssistant = () => {
           </Select>
         </FormItem>
       )} />
+      </div>
+      </div>
       <FormField name="introMessage" control={form.control} render={({ field }) => (
         <FormItem>
           <FormLabel>Intro Message</FormLabel>
