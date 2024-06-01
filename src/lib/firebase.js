@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { useRouter } from 'next/router';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,4 +21,27 @@ const storage = getStorage(app); // Initialize Cloud Storage
 
 const provider = new GoogleAuthProvider();
 
-export { auth, provider, signInWithPopup, db, storage };
+const logout = async () => {
+  const auth = getAuth();
+  const router = useRouter();
+  try {
+    await signOut(auth);
+    console.log("User signed out successfully");
+    router.push('/login');
+  } catch (error) {
+    console.error("Error signing out: ", error);
+  }
+};
+
+const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log(result.user);
+    // Handle user sign-in
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+export { auth, provider, signInWithPopup, db, storage, logout, signInWithGoogle };

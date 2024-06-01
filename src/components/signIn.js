@@ -13,19 +13,10 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { auth, provider, signInWithPopup } from "@/lib/firebase";
+import { signInWithGoogle } from "@/lib/firebase";
 
 
 export default function CardsCreateAccount() {
-  const signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      console.log(result.user);
-      // Handle user sign-in
-    } catch (error) {
-      console.error(error);
-    }
-  };
   return (
     <CenteredWrapper>
     <Card>
