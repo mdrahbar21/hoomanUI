@@ -1,3 +1,4 @@
+import { list } from "firebase/storage";
 import React from "react";
 import {
   FiShoppingBag,
@@ -18,47 +19,36 @@ import {
 
 export const links = [
     {
-      title: "Dashboard",
+      title: "Agent Builder",
       links: [
         {
-          name: "Dashboard",
-          address: "Dashboard",
-          icon: <FiShoppingBag />,
+          name: "Agents",
+          address: "Agents",
         },
         {
-          name: "Add Missing Case",
-          address: "AddMissingCase",
-          icon: <FiPlus />,
+          name: "Knowledge Base",
+          address: "KnowledgeBase",
         },
         {
-          name: "Find Missing Case",
-          address: "FindMissingCase",
-          icon: <FiSearch />,
+          name: "Integrations",
+          address: "Integrations",
+        }
+      ]
+    },
+    {
+      title: "Statistics",
+      links: [
+        {
+          name: "Overview",
+          address: "Overview",
         },
         {
-          name: "Missing",
-          address: "Missing",
-          icon: <FiSquare />,
+          name: "CallLogs",
+          address: "CallLogs",
         },
         {
-          name: "Unidentified",
-          address: "Unidentified",
-          icon: <FiCrosshair />,
-        },
-        {
-          name: "Unclaimed",
-          address: "Unclaimed",
-          icon: <FiShoppingBag />,
-        },
-        {
-          name: "New Case",
-          address: "case-creation",
-          icon: <FiPlus />,
-        },
-        {
-          name: "Search Missing Person",
-          address: "search",
-          icon: <FiSearch />,
+          name: "TicketInsights",
+          address: "TicketInsights",
         },
       ],
     },

@@ -1,37 +1,56 @@
-import React, { createContext, useContext, useState } from "react";
+"use client"
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const StateContext = createContext();
 
 const initialState = {
-  chat: false, //is chat open or closed
-  cart: false, //is cart open or closed
-  userProfile: false, //is user profile open or closed
-  notification: false, //is notification open or closed
+  chat: false, 
+  cart: false, 
+  userProfile: false, 
+  notification: false,
 };
 
 export const ContextProvider = ({ children }) => {
   const [screenSize, setScreenSize] = useState(undefined);
-  const [currentColor, setCurrentColor] = useState("#03C9D7");
+  const [currentColor, setCurrentColor] = useState("#ffffff");
   const [currentMode, setCurrentMode] = useState("Light");
   const [themeSettings, setThemeSettings] = useState(false);
   const [activeMenu, setActiveMenu] = useState(true);
   const [isClicked, setIsClicked] = useState(initialState);
 
+  useEffect(() => {
+    setCurrentColor(localStorage.getItem("colorMode") || "#ffffff");
+    setCurrentMode(localStorage.getItem("themeMode") || "Light");
+  }, []);
+
   const setMode = (e) => {
-    setCurrentMode(e.target.value);
-    localStorage.setItem("themeMode", e.target.value);
+    const mode = e.target.value;
+    setCurrentMode(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("themeMode", mode);
+    }
   };
 
   const setColor = (color) => {
     setCurrentColor(color);
-    localStorage.setItem("colorMode", color);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("colorMode", color);
+    }
   };
 
-  const handleClick = (clicked) =>
-    setIsClicked({  ...isClicked, [clicked]: !isClicked[clicked] });
+  const handleClick = (clicked) => 
+    setIsClicked({ ...isClicked, [clicked]: !isClicked[clicked] });
+
+  const toggleActiveMenu = () => {
+    if (activeMenu==true){
+      setActiveMenu(false);
+    } else {
+      setActiveMenu(true);
+    }
+  };
 
   return (
-    // eslint-disable-next-line react/jsx-no-constructed-context-values
     <StateContext.Provider
       value={{
         currentColor,
@@ -50,13 +69,12 @@ export const ContextProvider = ({ children }) => {
         setColor,
         themeSettings,
         setThemeSettings,
+        toggleActiveMenu
       }}
     >
       {children}
-      {/* this is the children of the ContextProvider component, which returns */}
-      {/* underlying components of that component*/}
     </StateContext.Provider>
   );
 };
 
-export const useStateContext = () => useContext(StateContext);
+export const AppStateContext = () => useContext(StateContext);
