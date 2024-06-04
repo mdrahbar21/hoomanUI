@@ -10,7 +10,8 @@ import { Input2 } from '@/components/ui/input2';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
+
 
 // Define the form schema
 const formSchema = z.object({
@@ -51,6 +52,7 @@ const MeetingAssistant = () => {
     }
   });
 
+  const { toast } = useToast()
   const [volume, setVolume] = useState<number>(0.5);
 
   const increaseVolume = () => {
