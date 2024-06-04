@@ -29,7 +29,7 @@ const Sidebar = () => {
 
 
   const activeLink = 'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-white text-md m-2';
-  const normalLink = 'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-md hover:bg-orange-200 m-2';
+  const normalLink = 'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-md hover:bg-white hover:text-black m-2';
 
   return (
     <div className="h-screen md:overflow-hidden overflow-auto md:hover:overflow-auto lg:hover:overflow-auto pb-10 lg:overflow-hidden" style={{ backgroundColor: '#000', color: '#fff' }}>
@@ -52,7 +52,7 @@ const Sidebar = () => {
           <div className="mt-10">
             {links.map((item) => (
               <div key={item.title}>
-                <p className="text-gray-400 m-3 mt-4 uppercase">
+                <p className="text-gray-400 m-3 mt-4 ">
                   {item.title}
                 </p>
                 {item.links.map((link) => (
