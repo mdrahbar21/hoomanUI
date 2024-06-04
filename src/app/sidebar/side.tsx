@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Tippy from '@tippyjs/react';
 import { IoMdClose } from 'react-icons/io';
 import { logo } from "@/assets"
@@ -25,6 +25,8 @@ const Sidebar = () => {
       toggleActiveMenu();
     }
   };
+  const pathname = usePathname()
+
 
   const activeLink = 'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-white text-md m-2';
   const normalLink = 'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-md hover:bg-orange-200 m-2';
@@ -44,7 +46,7 @@ const Sidebar = () => {
               className="p-3 hover:bg-gray-200 mr-3 mt-4"
               aria-label="Close sidebar"
             >
-              <IoMdClose size={24} color="white" />
+              {/* <IoMdClose size={24} color="white" /> */}
             </button>
           </div>
           <div className="mt-10">
@@ -57,8 +59,8 @@ const Sidebar = () => {
                   <Link href={`/${link.address}`} key={link.name} passHref legacyBehavior>
                     <a
                       onClick={handleCloseSideBar}
-                      className={router.pathname === `/${link.address}` ? activeLink : normalLink}
-                      style={{ backgroundColor: router.pathname === `/${link.address}` ? currentColor : undefined }}
+                      className={pathname === `/${link.address}` ? activeLink : normalLink}
+                      style={{ backgroundColor: pathname === `/${link.address}` ? currentColor : undefined }}
                     >
                       <span className="capitalize">{formatName(link.name)}</span>
                     </a>

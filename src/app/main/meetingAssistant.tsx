@@ -43,13 +43,13 @@ const MeetingAssistant = () => {
 
   return (
     <div className='bg-black'>
-      <h1 className="text-2xl font-bold text-white">Meeting Assistant</h1>
-      <p className="text-white">Customize your meeting assistant</p>
+      <h1 className="text-2xl font-bold text-white py-4 px-8 pb-0">Meeting Assistant</h1>
+      <p className="text-white px-8 py-0 text-xs">Customize your meeting assistant</p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="bg-black text-white p-8 grid gap-6">
           <FormField name="agentName" control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Agent Name</FormLabel>
+              <FormLabel>Agent name</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="Give your agent an identity" className='w-3/4' />
               </FormControl>
@@ -60,7 +60,7 @@ const MeetingAssistant = () => {
             <div className='w-3/4'>
               <FormField name="introMessage" control={form.control} render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Intro Message</FormLabel>
+                  <FormLabel>Intro message</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Hey, this is Hooman..." />
                   </FormControl>
@@ -71,14 +71,14 @@ const MeetingAssistant = () => {
             <div className='w-1/5 space-x-1'>
               <FormField name="voice" control={form.control} render={({ field }) => (
                 <FormItem >
-                  <FormLabel>Select Voice</FormLabel>
+                  <FormLabel>Select voice</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a voice" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Kajal">Kajal (default voice)</SelectItem>
-                      <SelectItem value="Alternative">Alternative Voice</SelectItem>
+                      <SelectItem value="Alternative">Alternative voice</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -87,7 +87,7 @@ const MeetingAssistant = () => {
           </div>
           <FormField name="introMessage" control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Intro Message</FormLabel>
+              <FormLabel>Intro message</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="Hey, this is Hooman..." />
               </FormControl>

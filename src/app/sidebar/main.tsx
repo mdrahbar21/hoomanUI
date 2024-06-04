@@ -1,12 +1,13 @@
 "use client"
 
 import React from 'react';
+import { logo } from '@/assets';
 
 const MainContent: React.FC = () => {
     return (
         <div className="main-content">
             <header>
-                <img src="/path_to_logo.png" alt="Hoomanlabs Logo" />
+                <img src={logo.src} alt="Hoomanlabs Logo" />
             </header>
             <section className="content-section bg-white">
                 <h1>Intro Message</h1>

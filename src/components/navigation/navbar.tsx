@@ -36,9 +36,9 @@ export default function Navbar() {
   const handleActiveMenu = () => setActiveMenu(!activeMenu);
 
   return (
-    <div className="flex justify-between p-2 md:ml-6 md:mr-6 relative">
-      <NavButton title="Menu" customFunc={handleActiveMenu} icon={<AiOutlineMenu />} />
-      <nav className="flex items-center justify-between w-full px-4 py-2 bg-black border-b border-gray-200">
+    <div className="flex justify-between p-2 md:ml-1 md:mr-1 relative ">
+      <NavButton title="Menu" customFunc={handleActiveMenu} icon={<AiOutlineMenu color="white"/>} />
+      <nav className="flex items-center justify-between w-full px-4 py-2 bg-black border-gray-200">
         <Link href="/" className="text-lg font-semibold text-white text-white-900">HoomanLabs</Link>
         <NavigationMenuDemo />
       </nav>
