@@ -5,11 +5,10 @@ import Link from "next/link";
 import Navbar from "@/components/navigation/navbar";
 import MeetingAssistant from "./main/meetingAssistant";
 import Sidebar from "./sidebar/side";
-import MainContent from "./sidebar/main";
 import { ContextProvider, AppStateContext } from "@/components/contexts/contextProvider";
 import {AuthContext, useAuth, AuthProvider, onAuthChange} from '@/components/contexts/authContext';
 import { ThemeProvider } from "@/components/themeProvider"
-import { Inter } from '@next/font/google'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({
   subsets: ['latin'],

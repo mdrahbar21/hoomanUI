@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
 
 
 // Define the form schema
@@ -125,7 +128,7 @@ const MeetingAssistant = () => {
                 <FormItem>
                   <FormLabel>Intro message</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Hey, this is Hooman, your virtual assistant from Hoomanlabs. How can I help you today?" />
+                    <Textarea {...field} placeholder="Hey, this is Hooman, your virtual assistant from Hoomanlabs. How can I help you today?" />
                   </FormControl>
                   <FormMessage>{form.formState.errors.introMessage?.message}</FormMessage>
                 </FormItem>
@@ -139,10 +142,18 @@ const MeetingAssistant = () => {
                 {/* ***************************************************************ADD TTS HERE*************************************************************************** */}
               </div>
               <div>
-                <img src={speaker.src} alt="decrease volumne" className='mt-8 ml-1 speaker hover-effect' onClick={decreaseVolume}  />
+                <Avatar>
+                  <AvatarImage src={speaker.src} alt="speaker" className='mt-8 ml-1 h-10 w-10 speaker hover-effect' onClick={decreaseVolume}  />
+                  {/* <AvatarFallback>Volumne Down</AvatarFallback> */}
+                </Avatar>
+                {/* <img src={speaker.src} alt="decrease volumne" className='mt-8 ml-1 h-10 w-10 speaker hover-effect' onClick={decreaseVolume}  /> */}
               </div>
               <div>
-                <img src={plus.src} alt="increase volume" className='mt-8 ml-1 speaker hover-effect' onClick={increaseVolume}/>
+                <Avatar>
+                  <AvatarImage src={plus.src} alt="speaker" className='mt-8 ml-1 h-10 w-10 speaker hover-effect' onClick={increaseVolume}  />
+                  {/* <AvatarFallback>Volume Up</AvatarFallback> */}
+                </Avatar>
+                {/* <img src={plus.src} alt="increase volume" className='mt-8 ml-1 speaker hover-effect' onClick={increaseVolume}/> */}
               </div>
             </div>
           </div>
@@ -151,7 +162,7 @@ const MeetingAssistant = () => {
               <FormItem>
                 <FormLabel>Role Description</FormLabel>
                 <FormControl>
-                  <Input2 {...field} placeholder="Describe what your agent is supposed to do e.g. “You are a helpful customer service agent agent working for Hooman Labs." />
+                  <Textarea {...field} placeholder="Describe what your agent is supposed to do e.g. “You are a helpful customer service agent working for Hooman Labs." />
                 </FormControl>
                 <FormMessage>{form.formState.errors.roleDescription?.message}</FormMessage>
               </FormItem>
@@ -162,7 +173,7 @@ const MeetingAssistant = () => {
               <FormItem>
                 <FormLabel>Instructions</FormLabel>
                 <FormControl>
-                  <Input2 {...field} placeholder="Write step-by-step instructions to guide your agent on how to respond to user queries." />
+                  <Textarea {...field} placeholder="Write step-by-step instructions to guide your agent on how to respond to user queries." />
                 </FormControl>
                 <FormMessage>{form.formState.errors.instructions?.message}</FormMessage>
               </FormItem>
@@ -173,7 +184,7 @@ const MeetingAssistant = () => {
               <FormItem>
                 <FormLabel>Conversation Style</FormLabel>
                 <FormControl>
-                  <Input2 {...field} placeholder="Set tone, response length and other conversation style guidelines for the agent." />
+                  <Textarea {...field} placeholder="Set tone, response length and other conversation style guidelines for the agent." />
                 </FormControl>
                 <FormMessage>{form.formState.errors.conversationStyle?.message}</FormMessage>
               </FormItem>
@@ -184,7 +195,7 @@ const MeetingAssistant = () => {
               <FormItem>
                 <FormLabel>Context</FormLabel>
                 <FormControl>
-                  <Input2 {...field} placeholder="Share information about your company, product or services that agent can refer while responding to user queries." />
+                  <Textarea {...field} placeholder="Share information about your company, product or services that agent can refer while responding to user queries." />
                 </FormControl>
                 <FormMessage>{form.formState.errors.context?.message}</FormMessage>
               </FormItem>
