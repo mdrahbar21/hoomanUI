@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/themeProvider"
+import { ContextProvider } from "@/components/contexts/contextProvider";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,8 +19,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <ContextProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+      <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
+      </ThemeProvider>
+        </body>
     </html>
+    </ContextProvider>
   );
 }
