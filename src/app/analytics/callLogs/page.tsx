@@ -1,29 +1,20 @@
 "use client"
 
 import * as React from "react"
+import { useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import Sidebar from "@/components/sidebar"
+import Sidebar from "@/components/sidebar/sidebar"
+import PhoneSideBar from "@/components/sidebar/phoneSideBar"
 import {
   Captions,
   ChevronLeft,
   ChevronRight,
   Copy,
-  CreditCard,
   File,
-  Home,
-  LineChart,
   ListFilter,
   MoreVertical,
-  Package,
-  Package2,
-  PanelLeft,
-  Phone,
   Search,
-  Settings,
-  ShoppingCart,
-  Truck,
-  Users2,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -61,7 +52,6 @@ import {
 } from "@/components/ui/pagination"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   Table,
   TableBody,
@@ -76,81 +66,42 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+
+
 
 export default function Dashboard() {
-  function CallLogs() {
-    const [callLogs, setCallLogs] = React.useState([]);
   
-    React.useEffect(() => {
-      fetch('http://yourapi.com/call-logs') // Replace with your actual API URL
-        .then(response => response.json())
-        .then(data => setCallLogs(data))
-        .catch(error => console.error('Error fetching data: ', error));
-    }, []);}
+    const [callLogs, setCallLogs] = React.useState<any[]>([]);
+    const [selectedLog, setSelectedLog] = React.useState<any | null>(null);
+
+    function handleRowClick(log:any) {
+      setSelectedLog(log);
+    }
+  
+    useEffect(()=>{
+      const fetchData=async()=>{
+        try{
+          const response=await fetch("http://localhost:8000/callLogs",{
+            method:'GET',
+            headers:{
+              'Content-Type':'application/json'
+            }
+          });
+          const data=await response.json();
+          setCallLogs(data);
+        } catch(error:any){
+          console.log(error);
+        }
+      };
+      fetchData();
+    },[]);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <Sidebar />
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelLeft className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:max-w-xs">
-              <nav className="grid gap-6 text-lg font-medium">
-                <Link
-                  href="#"
-                  className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-                >
-                  <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">HoomanLabs</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Home className="h-5 w-5" />
-                  Dashboard
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-foreground"
-                >
-                  <Phone className="h-5 w-5" />
-                  Calls
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Package className="h-5 w-5" />
-                  Products
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Users2 className="h-5 w-5" />
-                  Customers
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <LineChart className="h-5 w-5" />
-                  Settings
-                </Link>
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <PhoneSideBar />
           <Breadcrumb className=" md:flex">
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -206,7 +157,7 @@ export default function Dashboard() {
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+            {/* <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
               <Card
                 className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
               >
@@ -249,8 +200,9 @@ export default function Dashboard() {
                   <Progress value={10} aria-label="10% increase" />
                 </CardFooter>
               </Card>
-            </div>
-            <Tabs defaultValue="week">
+            </div> */}
+            {/* lg:w-[50rem] */}
+            <Tabs defaultValue="week" className="w-5/6">
               <div className="flex items-center">
                 <TabsList>
                   <TabsTrigger value="week">Week</TabsTrigger>
@@ -296,8 +248,8 @@ export default function Dashboard() {
               {/* <TabsContent value="month"> */}
               <TabsContent value="week">
               {/* <TabsContent value="year"> */}
-                <Card x-chunk="dashboard-05-chunk-3">
-                  <CardHeader className="px-7">
+                <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-2">
+                  <CardHeader className="px-7 sm:col-span-3">
                     <CardTitle>Call Logs</CardTitle>
                     <CardDescription>
                       Recent call details
@@ -312,10 +264,10 @@ export default function Dashboard() {
                             Start Time
                           </TableHead>
                           <TableHead className="hidden sm:table-cell">
-                            Cost
+                            Duration
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
-                            Duration
+                            Cost
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
                             Status
@@ -324,77 +276,37 @@ export default function Dashboard() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {/* {callLogs.map((log) => (
-                          <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
+                        {callLogs.map((log:any) => (
+                          // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
+                          <TableRow key={log.id} className="" onClick={() => handleRowClick(log)}>
                             <TableCell>
-                              <div className="font-medium">{log.phoneNumber}</div>
+                              <div className="font-medium">{log.phone}</div>
                               <div className="hidden text-sm text-muted-foreground md:inline">{log.email}</div>
                             </TableCell>
-                            <TableCell className="hidden sm:table-cell">{log.type}</TableCell>
                             <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant={log.status === "Success" ? "secondary" : "outline"}>
-                                {log.status}
+                              <div className="font-medium">{log.date}</div>
+                              <div className="hidden text-center text-sm text-muted-foreground md:inline">
+                                {log.time}
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {log.duration}
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              <Badge className="text-xs" variant="secondary">
+                                {log.cost}
                               </Badge>
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
-                              <div className="font-medium">{log.dateTime.split('T')[0]}</div>
-                              <div className="hidden text-center text-sm text-muted-foreground md:inline">{log.duration}</div>
+                              {/* <span className="text-red-600">●</span> */}
+                              {log.status}
                             </TableCell>
-                            <TableCell className="text-right">{log.agentUsed}</TableCell>
+                            <TableCell className="text-right">{log.operation}</TableCell>
+                            
                           </TableRow>
-                        ))} */}
-                        <TableRow className="bg-accent">
-                          <TableCell>
-                            <div className="font-medium">+91 84459 79949</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              rahbar@hoomanlabs.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                          <div className="font-medium">2024-06-15</div>
-                            <div className="hidden text-center text-sm text-muted-foreground md:inline">
-                              14:22
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              $0.10
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            5m 7s
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <span className="text-red-600">●</span>
-                          </TableCell>
-                          <TableCell className="text-right">giva_order_tracking</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">+91 63992 42636</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              olivia@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <div className="font-medium">2024-06-15</div>
-                            <div className="hidden text-center text-sm text-muted-foreground md:inline">
-                              14:07
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="outline">
-                              $0.02
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            1m 2s
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            1m 2s
-                          </TableCell>
-                          <TableCell className="text-right">book_appointment</TableCell>
-                        </TableRow>
+                        ))}
+
+                        
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -402,14 +314,15 @@ export default function Dashboard() {
               </TabsContent>
             </Tabs>
           </div>
-          <div>
-            <Card
-              className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
-            >
-              <CardHeader className="flex flex-row items-start bg-muted/50">
+          <div className="">
+          {selectedLog && (
+          <Card
+          className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
+          > 
+            <CardHeader className="flex flex-row items-start bg-muted/50">
                 <div className="grid gap-0.5">
                   <CardTitle className="group flex items-center gap-2 text-lg">
-                    Call #13578
+                    id :{selectedLog.id}
                     <Button
                       size="icon"
                       variant="outline"
@@ -419,7 +332,7 @@ export default function Dashboard() {
                       <span className="sr-only">Copy Call ID</span>
                     </Button>
                   </CardTitle>
-                  <CardDescription>Date: June 23, 2024</CardDescription>
+                  <CardDescription>{selectedLog.phone}</CardDescription>
                 </div>
                 <div className="ml-auto flex items-center gap-1">
                   <Button size="sm" variant="outline" className="h-8 gap-1">
@@ -447,69 +360,43 @@ export default function Dashboard() {
               <CardContent className="p-6 text-sm">
                 <div className="grid gap-3">
                   <div className="font-semibold">Call Details</div>
-                  {/* <ul className="grid gap-3">
+                  <ul className="grid gap-3">
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">
                         Customer Name <span></span>
                       </span>
-                      <span>Rahbar</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        Phone No.<span></span>
-                      </span>
-                      <span>+91 84459 79949</span>
+                      <span>{selectedLog.name}</span>
                     </li>
                   </ul>
-                  <Separator className="my-2" /> */}
                   <ul className="grid gap-3">
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Start Time of Call</span>
-                      <span>14:22:06 (IST)</span>
+                      <span>{selectedLog.time}</span>
                     </li>
                     <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">End Time of Call</span>
-                      <span>14:27:13 (IST)</span>
+                      <span className="text-muted-foreground">Timezone</span>
+                      <span>{selectedLog.timezone}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Duration of Call</span>
-                      <span>5 m 7s</span>
-                    </li>
-                  </ul>
-                    <Separator className="my-2" />
-                  <ul className="grid gap-3">
-                    <li className="flex items-center justify-between font-semibold">
-                      <span className="text-muted-foreground">Cost of Call</span>
-                      <span>$0.08</span>
-                    </li>
-                    <li className="flex items-center justify-between font-semibold">
-                      <span className="text-muted-foreground">Type of Call</span>
-                      <span>Web</span>
+                      <span>{selectedLog.duration}</span>
                     </li>
                   </ul>
                 </div>
                 <Separator className="my-4" />
-                <div className="grid gap-3">
-                  <div className="font-semibold">Customer Information</div>
-                  <dl className="grid gap-3">
-                    <div className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">Customer</dt>
-                      <dd>Rahbar</dd>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">Email</dt>
-                      <dd>
-                        <a href="mailto:">rahbar@hoomanlabs.com</a>
-                      </dd>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">Phone</dt>
-                      <dd>
-                        <a href="tel:">+91 84459 79949</a>
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
+                  {/* insert a chat type UI,  */}
+                  <div className="chat-container space-y-2 p-2  rounded-lg">
+                    {selectedLog.transactions.map((transaction: { query: any; response: any}, index: any) => (
+                      <div key={index}>
+                        <div className="chat-message customer-query  rounded p-2 text-left">
+                          <strong>Customer:</strong> {transaction.query}
+                        </div>
+                        <div className="chat-message agent-response  rounded p-2 text-right">
+                          <strong>Agent:</strong> {transaction.response}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 <Separator className="my-4" />
                 <div className="grid gap-3">
                   <div className="font-semibold">Call end Reason</div>
@@ -520,7 +407,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center justify-between">
                       <dt className="text-muted-foreground">Agent</dt>
-                      <dd>giva_order_tracking</dd>
+                      <dd>{selectedLog.operation}</dd>
                     </div>
                   </dl>
                 </div>
@@ -546,7 +433,8 @@ export default function Dashboard() {
                   </PaginationContent>
                 </Pagination>
               </CardFooter>
-            </Card>
+            </Card>      )}
+
           </div>
         </main>
       </div>

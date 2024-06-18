@@ -1,20 +1,4 @@
-import { list } from "firebase/storage";
 import React from "react";
-import {
-  FiShoppingBag,
-  FiEdit,
-  FiPieChart,
-  FiBarChart,
-  FiCreditCard,
-  FiStar,
-  FiShoppingCart,
-  FiPlus,
-  FiSearch,
-  FiPhoneMissed,
-  FiXSquare,
-  FiSquare,
-  FiCrosshair,
-} from "react-icons/fi";
 import { Home, Phone, Package, Users2, LineChart, Settings } from "lucide-react";
 
 
