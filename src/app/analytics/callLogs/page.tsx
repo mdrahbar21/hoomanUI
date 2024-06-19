@@ -225,13 +225,13 @@ export default function Dashboard() {
                       <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuCheckboxItem checked>
-                        Fulfilled
+                        any
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem>
-                        Declined
+                        Success
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem>
-                        Refunded
+                        Error
                       </DropdownMenuCheckboxItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -322,7 +322,7 @@ export default function Dashboard() {
             <CardHeader className="flex flex-row items-start bg-muted/50">
                 <div className="grid gap-0.5">
                   <CardTitle className="group flex items-center gap-2 text-lg">
-                    id :{selectedLog.id}
+                    id: {selectedLog.id}
                     <Button
                       size="icon"
                       variant="outline"
