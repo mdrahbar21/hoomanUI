@@ -66,6 +66,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import Sugar from 'sugar'
 
 
 
@@ -73,6 +75,38 @@ export default function Dashboard() {
   
     const [callLogs, setCallLogs] = React.useState<any[]>([]);
     const [selectedLog, setSelectedLog] = React.useState<any | null>(null);
+    const [copySuccess, setCopySuccess] = React.useState('');
+
+    const formatDate = (timestamp:any) => {
+      const date = Sugar.Date.create(timestamp * 1000); // Assuming _seconds is a Unix timestamp
+
+      return {date:date.toLocaleString().split(',')[0],time:date.toLocaleString().split(',')[1]}; // Adjust to the desired format
+    };
+
+    const calculateDuration = (start:any, end:any) => {
+      const startDate = Sugar.Date.create(start);
+      const endDate = Sugar.Date.create(end);
+      const durationMillis = (endDate.getTime() - startDate.getTime())*1000;
+    
+      // Convert durationMillis to a readable format if needed, e.g., hours, minutes, seconds
+      const seconds = Math.floor((durationMillis / 1000) % 60);
+      const minutes = Math.floor((durationMillis / (1000 * 60)) % 60);
+      const hours = Math.floor((durationMillis / (1000 * 60 * 60)) % 24);
+
+      if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+      if (minutes > 0) return `${minutes}m ${seconds}s`;
+      return `${seconds}s`;
+    };
+    
+    const handleCopy = (text:any) => {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopySuccess('Copied!');
+        setTimeout(() => setCopySuccess(''), 2000); // Clear the success message after 2 seconds
+      }).catch(() => {
+        setCopySuccess('Failed to copy!');
+        setTimeout(() => setCopySuccess(''), 2000); // Clear the error message after 2 seconds
+      });
+    };
 
     function handleRowClick(log:any) {
       setSelectedLog(log);
@@ -81,14 +115,15 @@ export default function Dashboard() {
     useEffect(()=>{
       const fetchData=async()=>{
         try{
-          const response=await fetch("http://localhost:8000/callLogs",{
-            method:'GET',
+          const response=await fetch("/api/firestore/collections/conversations",{
+            method:'POST',
             headers:{
               'Content-Type':'application/json'
             }
           });
           const data=await response.json();
-          setCallLogs(data);
+          const current = data.current
+          setCallLogs(current);
         } catch(error:any){
           console.log(error);
         }
@@ -98,10 +133,10 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <PhoneSideBar />
+          {/* <PhoneSideBar /> */}
           <Breadcrumb className=" md:flex">
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -155,7 +190,7 @@ export default function Dashboard() {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-4 xl:grid-cols-4">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
             {/* <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
               <Card
@@ -202,7 +237,7 @@ export default function Dashboard() {
               </Card>
             </div> */}
             {/* lg:w-[50rem] */}
-            <Tabs defaultValue="week" className="w-5/6">
+            <Tabs defaultValue="week" className="">
               <div className="flex items-center">
                 <TabsList>
                   <TabsTrigger value="week">Week</TabsTrigger>
@@ -248,8 +283,8 @@ export default function Dashboard() {
               {/* <TabsContent value="month"> */}
               <TabsContent value="week">
               {/* <TabsContent value="year"> */}
-                <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-2">
-                  <CardHeader className="px-7 sm:col-span-3">
+                <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-3">
+                  <CardHeader className="px-7 sm:col-span-2">
                     <CardTitle>Call Logs</CardTitle>
                     <CardDescription>
                       Recent call details
@@ -266,12 +301,6 @@ export default function Dashboard() {
                           <TableHead className="hidden sm:table-cell">
                             Duration
                           </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Cost
-                          </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Status
-                          </TableHead>
                           <TableHead className="text-right">Agent Used</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -280,33 +309,22 @@ export default function Dashboard() {
                           // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
                           <TableRow key={log.id} className="" onClick={() => handleRowClick(log)}>
                             <TableCell>
-                              <div className="font-medium">{log.phone}</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">{log.email}</div>
+                              <div className="font-medium">{log.caller?? '+918445979949'}</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">{log.id}</div>
                             </TableCell>
                             <TableCell className="hidden sm:table-cell">
-                              <div className="font-medium">{log.date}</div>
+                              <div className="font-medium">{formatDate(log.beginTimestamp._seconds).date}</div>
                               <div className="hidden text-center text-sm text-muted-foreground md:inline">
-                                {log.time}
+                                {formatDate(log.beginTimestamp._seconds).time}
                               </div>
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {log.duration}
+                              {calculateDuration(log.beginTimestamp._seconds, log.endTimestamp._seconds)}
                             </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs" variant="secondary">
-                                {log.cost}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              {/* <span className="text-red-600">●</span> */}
-                              {log.status}
-                            </TableCell>
-                            <TableCell className="text-right">{log.operation}</TableCell>
+                            <TableCell className="text-right">{log.agent}</TableCell>
                             
                           </TableRow>
                         ))}
-
-                        
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -314,7 +332,7 @@ export default function Dashboard() {
               </TabsContent>
             </Tabs>
           </div>
-          <div className="">
+          <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
           {selectedLog && (
           <Card
           className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
@@ -328,19 +346,20 @@ export default function Dashboard() {
                       variant="outline"
                       className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3 w-3" onClick={() => handleCopy(selectedLog.id)}/>
                       <span className="sr-only">Copy Call ID</span>
                     </Button>
+                    {copySuccess && <span className="ml-2 text-sm text-gray-500">{copySuccess}</span>}
                   </CardTitle>
                   <CardDescription>{selectedLog.phone}</CardDescription>
                 </div>
                 <div className="ml-auto flex items-center gap-1">
-                  <Button size="sm" variant="outline" className="h-8 gap-1">
-                    <Captions className="h-3.5 w-3.5" />
-                    <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-                      Check Transcript
-                    </span>
-                  </Button>
+                    {/* <Button size="sm" variant="outline" className="h-8 gap-1">
+                      <Captions className="h-3.5 w-3.5" />
+                      <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
+                        Check Transcript
+                      </span>
+                    </Button> */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size="icon" variant="outline" className="h-8 w-8">
@@ -371,7 +390,7 @@ export default function Dashboard() {
                   <ul className="grid gap-3">
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Start Time of Call</span>
-                      <span>{selectedLog.time}</span>
+                      <span>{formatDate(selectedLog.beginTimestamp._seconds).date} {formatDate(selectedLog.beginTimestamp._seconds).time}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Timezone</span>
@@ -379,13 +398,13 @@ export default function Dashboard() {
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Duration of Call</span>
-                      <span>{selectedLog.duration}</span>
+                      <span>{calculateDuration(selectedLog.beginTimestamp._seconds, selectedLog.endTimestamp._seconds)}</span>
                     </li>
                   </ul>
                 </div>
                 <Separator className="my-4" />
                   {/* insert a chat type UI,  */}
-                  <div className="chat-container space-y-2 p-2  rounded-lg">
+                  <ScrollArea className="h-96 chat-container space-y-2 p-2  rounded-lg">
                     {selectedLog.transactions.map((transaction: { query: any; response: any}, index: any) => (
                       <div key={index}>
                         <div className="chat-message customer-query  rounded p-2 text-left">
@@ -396,7 +415,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                     ))}
-                  </div>
+                  </ScrollArea>
                 <Separator className="my-4" />
                 <div className="grid gap-3">
                   <div className="font-semibold">Call end Reason</div>
@@ -407,7 +426,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center justify-between">
                       <dt className="text-muted-foreground">Agent</dt>
-                      <dd>{selectedLog.operation}</dd>
+                      <dd>{selectedLog.agent}</dd>
                     </div>
                   </dl>
                 </div>

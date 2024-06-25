@@ -1,14 +1,14 @@
-import CardsCreateAccount from "@/components/SignIn";
+// import CardsCreateAccount from "@/components/SignIn";
 
-const SignInPage = () => {
-  return (
-    <div>
-      <h1>HoomanLabs</h1>
-      <CardsCreateAccount />
-    </div>
-  );
-};
+// const SignInPage = () => {
+//   return (
+//     <div>
+//       <h1>HoomanLabs</h1>
+//       <CardsCreateAccount />
+//     </div>
+//   );
+// };
 
-export default SignInPage;
+// export default SignInPage;
 
 

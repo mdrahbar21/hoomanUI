@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/ui/centeredWrapper.js", "src/app/main/meetingAssistant.tsx", "src/components/contexts/contextProvider.js", "src/app/sidebar/side.tsx", "src/app/analytics/callLogs"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/ui/centeredWrapper.js", "src/components/meetingAssistant.tsx", "src/components/contexts/contextProvider.js", "src/components/sidebar/side.tsx", "src/app/analytics/callLogs"],
   "exclude": ["node_modules"]
 }
