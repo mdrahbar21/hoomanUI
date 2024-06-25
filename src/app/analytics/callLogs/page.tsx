@@ -49,6 +49,8 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
@@ -73,7 +75,7 @@ import Sugar from 'sugar'
 
 export default function Dashboard() {
   
-    const [callLogs, setCallLogs] = React.useState<any[]>([]);
+    // const [callLogs, setCallLogs] = React.useState<any[]>([]);
     const [selectedLog, setSelectedLog] = React.useState<any | null>(null);
     const [copySuccess, setCopySuccess] = React.useState('');
 
@@ -111,25 +113,66 @@ export default function Dashboard() {
     function handleRowClick(log:any) {
       setSelectedLog(log);
     }
-  
-    useEffect(()=>{
-      const fetchData=async()=>{
-        try{
-          const response=await fetch("/api/firestore/collections/conversations",{
-            method:'POST',
-            headers:{
-              'Content-Type':'application/json'
-            }
-          });
-          const data=await response.json();
-          const current = data.current
-          setCallLogs(current);
-        } catch(error:any){
-          console.log(error);
+
+    const [callLogs, setCallLogs] = React.useState<any[]>([]);
+    const [nextPage, setNextPage] = React.useState<any[]>([]);
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [hasNextPage, setHasNextPage] = React.useState(false);
+
+    useEffect(() => {
+        fetchLogs(currentPage);
+    }, []);
+
+    const fetchLogs = async (page: number) => {
+        try {
+            const response = await fetch(`/api/firestore/collections/conversations?page=${page}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            setCallLogs(data.current);
+            setNextPage(data.next);
+            setHasNextPage(data.next.length > 0);
+        } catch (error) {
+            console.error("Failed to fetch data", error);
         }
-      };
-      fetchData();
-    },[]);
+    };
+
+    const handleNextPage = () => {
+        if (hasNextPage) {
+            setCallLogs(nextPage);
+            setCurrentPage(currentPage + 1);
+            fetchLogs(currentPage + 1);
+        }
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+            fetchLogs(currentPage - 1);
+        }
+    };
+  
+    // useEffect(()=>{
+    //   const fetchData=async()=>{
+    //     try{
+    //       const response=await fetch("/api/firestore/collections/conversations",{
+    //         method:'POST',
+    //         headers:{
+    //           'Content-Type':'application/json'
+    //         }
+    //       });
+    //       const data=await response.json();
+    //       const current = data.current
+    //       setCallLogs(current);
+    //     } catch(error:any){
+    //       console.log(error);
+    //     }
+    //   };
+    //   fetchData();
+    // },[]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -329,6 +372,20 @@ export default function Dashboard() {
                     </Table>
                   </CardContent>
                 </Card>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious onClick={handlePrevPage} >Previous</PaginationPrevious>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationNext onClick={handleNextPage} >Previous</PaginationNext>
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+                <div className="flex justify-between mt-4">
+                  <Button onClick={handlePrevPage} disabled={currentPage === 1}>Previous</Button>
+                  <Button onClick={handleNextPage} disabled={!hasNextPage}>Next</Button>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -410,7 +467,8 @@ export default function Dashboard() {
                         <div className="chat-message customer-query  rounded p-2 text-left">
                           <strong>Customer:</strong> {transaction.query}
                         </div>
-                        <div className="chat-message agent-response  rounded p-2 text-right">
+                        <hr/>
+                        <div className="chat-message agent-response  rounded p-2 text-left">
                           <strong>Agent:</strong> {transaction.response}
                         </div>
                       </div>
