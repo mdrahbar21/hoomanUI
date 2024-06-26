@@ -72,7 +72,7 @@ import Sugar from 'sugar'
 
 
 
-export default function Dashboard() {
+export default function CallLogs() {
   
     // const [callLogs, setCallLogs] = React.useState<any[]>([]);
     const [selectedLog, setSelectedLog] = React.useState<any | null>(null);
@@ -124,7 +124,11 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchLogs(currentPage);
-    }, [currentPage]);
+    }, [currentPage,date,agent]);
+
+    useEffect(() => {
+      fetchAgentsName();
+    }, []);
 
     const fetchLogs = async (page: number) => {
         try {
@@ -171,6 +175,28 @@ export default function Dashboard() {
       fetchLogs(1);
     };
 
+    const [agentName,setAgents]=React.useState<any[]>([]);
+
+    const fetchAgentsName =async () =>{
+      try{
+        const response=await fetch("/api/firestore/collections/agents",{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          }
+        });
+        const data=await response.json();
+        const agentNames:any = [];
+        data.map((agent:any)=>{
+          agentNames.push(agent._ref._path.segments[1])
+        })
+        setAgents(agentNames)
+      } catch(error:any){
+        console.log(error);
+      }
+    }
+
+    
   
     // useEffect(()=>{
     //   const fetchData=async()=>{
@@ -334,11 +360,22 @@ export default function Dashboard() {
                           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
                         </div>
                         <div>
-                          <label>Agent</label>
-                          <Input type="text" value={agent} onChange={(e) => setAgent(e.target.value)} />
+                        <label>Agent</label>
+                          <select
+                            value={agent}
+                            onChange={(e) => setAgent(e.target.value)}
+                            className="w-full mt-1 p-2 border rounded"
+                          >
+                            <option value="">Select Agent</option>
+                            {agentName.map((name, index) => (
+                              <option key={index} value={name}>{name}</option>
+                            ))}
+                          </select>
                         </div>
                         <Button className="mt-2" onClick={handleFilterChange}>Apply Filters</Button>
-                        <Button className="mt-2 ml-1" onClick={handleClearFilters}>Clear Filters</Button>
+                        {(date!='' || agent!='' )&&(
+                        <Button className="mt-2 ml-1 " onClick={handleClearFilters}>Clear Filters</Button>
+                        )}
                       </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -366,6 +403,7 @@ export default function Dashboard() {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead className="hidden sm:table-cell">Sr.</TableHead>
                           <TableHead>Phone Number</TableHead>
                           <TableHead className="hidden sm:table-cell">
                             Start Time
@@ -377,9 +415,12 @@ export default function Dashboard() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {callLogs.map((log:any) => (
+                        {callLogs.map((log:any, index:number) => (
                           // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
                           <TableRow key={log.id} className="" onClick={() => handleRowClick(log)}>
+                            <TableCell>
+                              <div className="font-medium">{((currentPage-1)*10)+index+1}</div>
+                            </TableCell>
                             <TableCell>
                               <div className="font-medium">{log.caller?? '+918445979949'}</div>
                               <div className="hidden text-sm text-muted-foreground md:inline">{log.id}</div>
@@ -421,21 +462,19 @@ export default function Dashboard() {
                       </PaginationLink>
                     </PaginationItem>
                     )}
+                    
                     <PaginationItem>
                       <PaginationLink onClick={()=>navigateToPage(currentPage)}>
                         {currentPage}
                       </PaginationLink>
                     </PaginationItem>
+                    {callLogs.length>=10 && (
                     <PaginationItem>
                       <PaginationLink onClick={()=>navigateToPage(currentPage+1)}>
                         {currentPage+1}
                       </PaginationLink>
                     </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink onClick={()=>navigateToPage(currentPage+2)}>
-                        {currentPage+2}
-                      </PaginationLink>
-                    </PaginationItem>
+                    )}
                     <PaginationItem>
                       <PaginationNext onClick={handleNextPage} aria-disabled={!hasNextPage}>Previous</PaginationNext>
                     </PaginationItem>

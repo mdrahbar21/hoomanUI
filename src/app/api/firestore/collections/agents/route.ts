@@ -10,6 +10,7 @@ export async function POST(req:Request){
         agen.push(agent)
     })
 
+
     // console.log(agen)
     // console.log(agents)
     return Response.json(agen)
