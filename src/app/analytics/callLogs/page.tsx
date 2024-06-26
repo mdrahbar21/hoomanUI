@@ -4,8 +4,6 @@ import * as React from "react"
 import { useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import Sidebar from "@/components/sidebar/sidebar"
-import PhoneSideBar from "@/components/sidebar/phoneSideBar"
 import {
   Captions,
   ChevronLeft,
@@ -49,6 +47,7 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
+  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
@@ -115,13 +114,13 @@ export default function Dashboard() {
     }
 
     const [callLogs, setCallLogs] = React.useState<any[]>([]);
-    const [nextPage, setNextPage] = React.useState<any[]>([]);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [hasNextPage, setHasNextPage] = React.useState(false);
+    const [inputPage, setInputPage] = React.useState<number | string>('');
 
     useEffect(() => {
         fetchLogs(currentPage);
-    }, []);
+    }, [currentPage]);
 
     const fetchLogs = async (page: number) => {
         try {
@@ -132,9 +131,8 @@ export default function Dashboard() {
                 }
             });
             const data = await response.json();
-            setCallLogs(data.current);
-            setNextPage(data.next);
-            setHasNextPage(data.next.length > 0);
+            setCallLogs(data.conversations);
+            setHasNextPage(data.conversations.length === 10);
         } catch (error) {
             console.error("Failed to fetch data", error);
         }
@@ -142,16 +140,24 @@ export default function Dashboard() {
 
     const handleNextPage = () => {
         if (hasNextPage) {
-            setCallLogs(nextPage);
             setCurrentPage(currentPage + 1);
-            fetchLogs(currentPage + 1);
         }
+    };
+
+    const specificPage = (inputPage:any) => {
+      if (typeof inputPage === 'number' && inputPage > 0) {
+          setCurrentPage(inputPage);
+      }
+    };
+    const navigateToPage = (pageNumber: number) => {
+      if (pageNumber > 0) {
+        setCurrentPage(pageNumber);
+      }
     };
 
     const handlePrevPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
-            fetchLogs(currentPage - 1);
         }
     };
   
@@ -374,17 +380,54 @@ export default function Dashboard() {
                 </Card>
                 <Pagination>
                   <PaginationContent>
+                  {currentPage-1>0 &&(
                     <PaginationItem>
-                      <PaginationPrevious onClick={handlePrevPage} >Previous</PaginationPrevious>
+                      <PaginationPrevious onClick={handlePrevPage} aria-disabled={currentPage===1}>Previous</PaginationPrevious>
+                    </PaginationItem>
+                  )}
+                    {currentPage-2>0 &&(
+                    <PaginationItem className="">
+                      <PaginationLink onClick={()=>navigateToPage(currentPage-2)} aria-disabled={currentPage<=0}>
+                        {currentPage-2}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    {currentPage-1>0 &&(
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage-1)} aria-disabled={currentPage<=0}>
+                        {currentPage-1}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage)}>
+                        {currentPage}
+                      </PaginationLink>
                     </PaginationItem>
                     <PaginationItem>
-                      <PaginationNext onClick={handleNextPage} >Previous</PaginationNext>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage+1)}>
+                        {currentPage+1}
+                      </PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage+2)}>
+                        {currentPage+2}
+                      </PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationNext onClick={handleNextPage} aria-disabled={!hasNextPage}>Previous</PaginationNext>
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>
-                <div className="flex justify-between mt-4">
-                  <Button onClick={handlePrevPage} disabled={currentPage === 1}>Previous</Button>
-                  <Button onClick={handleNextPage} disabled={!hasNextPage}>Next</Button>
+                <div className="flex items-center">
+                  <Input
+                    className=""
+                    type="number"
+                    value={inputPage}
+                    onChange={(e) => setInputPage(Number(e.target.value))}
+                    placeholder="Go to page"
+                  />
+                  <Button className="secondary" onClick={() => navigateToPage(Number(inputPage))}>Go</Button>
                 </div>
               </TabsContent>
             </Tabs>

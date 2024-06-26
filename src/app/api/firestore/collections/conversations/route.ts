@@ -1,30 +1,35 @@
 import db from '@/lib/firebase2'
 
 export async function POST(req: Request) {
-    const conversations = db.collection('conversations')
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = 10;
+
+    let conversationsRef = db.collection('conversations')
         .orderBy('endTimestamp', 'desc')
-        .limit(10);
+        .limit(limit);
 
-    const conversation: any = [];
-    const snapshot = await conversations.get();
-    const last = snapshot.docs[snapshot.docs.length - 1];
+    // Calculate the offset for the requested page
+    const offset = (page - 1) * limit;
 
-    // Collecting data into the array along with the document ID
-    snapshot.forEach(doc => conversation.push({ id: doc.id, ...doc.data() }));
-
-    let nextPage: any = [];
-    if (last) {
-        const next = db.collection('conversations')
+    let conversationsSnapshot;
+    if (offset > 0) {
+        const lastPageRef = db.collection('conversations')
             .orderBy('endTimestamp', 'desc')
-            .startAfter(last.data().endTimestamp)
-            .limit(10);
-        const nextSnapshot = await next.get();
-        // Collecting data for the next page along with the document ID
-        nextSnapshot.forEach(doc => nextPage.push({ id: doc.id, ...doc.data() }));
+            .limit(offset);
+
+        const lastPageSnapshot = await lastPageRef.get();
+        const lastVisible = lastPageSnapshot.docs[lastPageSnapshot.docs.length - 1];
+
+        conversationsRef = conversationsRef.startAfter(lastVisible);
     }
 
-    // Returning both current and next page conversations
-    return new Response(JSON.stringify({ current: conversation, next: nextPage }), {
+    conversationsSnapshot = await conversationsRef.get();
+
+    const conversations:any = [];
+    conversationsSnapshot.forEach(doc => conversations.push({ id: doc.id, ...doc.data() }));
+
+    return new Response(JSON.stringify({ conversations }), {
         headers: { 'Content-Type': 'application/json' }
     });
 }
