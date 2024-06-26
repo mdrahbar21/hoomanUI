@@ -118,13 +118,17 @@ export default function Dashboard() {
     const [hasNextPage, setHasNextPage] = React.useState(false);
     const [inputPage, setInputPage] = React.useState<number | string>('');
 
+    // States for filter
+    const [date, setDate] = React.useState<any>('');
+    const [agent, setAgent] = React.useState<any>('');
+
     useEffect(() => {
         fetchLogs(currentPage);
     }, [currentPage]);
 
     const fetchLogs = async (page: number) => {
         try {
-            const response = await fetch(`/api/firestore/collections/conversations?page=${page}`, {
+            const response = await fetch(`/api/firestore/collections/conversations?page=${page}&date=${date}&agent=${agent}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -144,22 +148,29 @@ export default function Dashboard() {
         }
     };
 
-    const specificPage = (inputPage:any) => {
-      if (typeof inputPage === 'number' && inputPage > 0) {
-          setCurrentPage(inputPage);
-      }
-    };
     const navigateToPage = (pageNumber: number) => {
       if (pageNumber > 0) {
         setCurrentPage(pageNumber);
       }
     };
-
     const handlePrevPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
         }
     };
+
+    const handleFilterChange = () => {
+      setCurrentPage(1);
+      fetchLogs(1);
+    };
+
+    const handleClearFilters = () => {
+      setDate('');
+      setAgent('');
+      setCurrentPage(1);
+      fetchLogs(1);
+    };
+
   
     // useEffect(()=>{
     //   const fetchData=async()=>{
@@ -308,7 +319,7 @@ export default function Dashboard() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem checked>
+                      {/* <DropdownMenuCheckboxItem checked>
                         any
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem>
@@ -316,7 +327,19 @@ export default function Dashboard() {
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem>
                         Error
-                      </DropdownMenuCheckboxItem>
+                      </DropdownMenuCheckboxItem> */}
+                      <div className="p-4">
+                        <div>
+                          <label>Start Time</label>
+                          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                        </div>
+                        <div>
+                          <label>Agent</label>
+                          <Input type="text" value={agent} onChange={(e) => setAgent(e.target.value)} />
+                        </div>
+                        <Button className="mt-2" onClick={handleFilterChange}>Apply Filters</Button>
+                        <Button className="mt-2 ml-1" onClick={handleClearFilters}>Clear Filters</Button>
+                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Button
@@ -371,7 +394,6 @@ export default function Dashboard() {
                               {calculateDuration(log.beginTimestamp._seconds, log.endTimestamp._seconds)}
                             </TableCell>
                             <TableCell className="text-right">{log.agent}</TableCell>
-                            
                           </TableRow>
                         ))}
                       </TableBody>
