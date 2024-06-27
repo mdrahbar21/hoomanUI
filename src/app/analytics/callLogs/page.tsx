@@ -422,8 +422,8 @@ export default function CallLogs() {
                               <div className="font-medium">{((currentPage-1)*10)+index+1}</div>
                             </TableCell>
                             <TableCell>
-                              <div className="font-medium">{log.caller?? '+918445979949'}</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">{log.id}</div>
+                              <div className="font-medium">{log.callConfig?.from?? '+918445979949'}</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">{log.callConfig? log.type: 'na'}</div>
                             </TableCell>
                             <TableCell className="hidden sm:table-cell">
                               <div className="font-medium">{formatDate(log.beginTimestamp._seconds).date}</div>
