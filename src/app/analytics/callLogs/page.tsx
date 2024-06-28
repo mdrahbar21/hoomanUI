@@ -77,6 +77,8 @@ export default function CallLogs() {
     // const [callLogs, setCallLogs] = React.useState<any[]>([]);
     const [selectedLog, setSelectedLog] = React.useState<any | null>(null);
     const [copySuccess, setCopySuccess] = React.useState('');
+    const [analysisResults, setAnalysisResults] = React.useState<any | null>(null);
+
 
     const formatDate = (timestamp:any) => {
       const date = Sugar.Date.create(timestamp * 1000); // Assuming _seconds is a Unix timestamp
@@ -111,7 +113,30 @@ export default function CallLogs() {
 
     function handleRowClick(log:any) {
       setSelectedLog(log);
+      analyzeSelectedLog(log);
     }
+    const analyzeSelectedLog = async (log: any) => {
+      const conversationData: any[] = [];
+      log.transactions.forEach((convo: any) => {
+        conversationData.push('customer: ' + convo.query);
+        conversationData.push('agent: ' + convo.response);
+      });
+
+      try {
+        const response = await fetch('/api/endCallAnalytics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ transactions: conversationData })
+        });
+
+        const data = await response.json();
+        setAnalysisResults(data.results);
+      } catch (error: any) {
+        console.error("Failed to analyze call", error);
+      }
+    };
 
     const [callLogs, setCallLogs] = React.useState<any[]>([]);
     const [currentPage, setCurrentPage] = React.useState(1);
@@ -417,13 +442,13 @@ export default function CallLogs() {
                       <TableBody>
                         {callLogs.map((log:any, index:number) => (
                           // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
-                          <TableRow key={log.id} className="" onClick={() => handleRowClick(log)}>
+                          <TableRow key={log.id} className={selectedLog && selectedLog.id === log.id ? 'selected-row' : ''} onClick={() => handleRowClick(log)}>
                             <TableCell>
                               <div className="font-medium">{((currentPage-1)*10)+index+1}</div>
                             </TableCell>
                             <TableCell>
                               <div className="font-medium">{log.callConfig?.from?? '+918445979949'}</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">{log.callConfig? log.type: 'na'}</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">{log.type}</div>
                             </TableCell>
                             <TableCell className="hidden sm:table-cell">
                               <div className="font-medium">{formatDate(log.beginTimestamp._seconds).date}</div>
@@ -512,7 +537,7 @@ export default function CallLogs() {
                     </Button>
                     {copySuccess && <span className="ml-2 text-sm text-gray-500">{copySuccess}</span>}
                   </CardTitle>
-                  <CardDescription>{selectedLog.phone}</CardDescription>
+                  <CardDescription>{selectedLog.callConfig?.from?? '+918445979949'}</CardDescription>
                 </div>
                 <div className="ml-auto flex items-center gap-1">
                     {/* <Button size="sm" variant="outline" className="h-8 gap-1">
@@ -554,15 +579,16 @@ export default function CallLogs() {
                       <span>{formatDate(selectedLog.beginTimestamp._seconds).date} {formatDate(selectedLog.beginTimestamp._seconds).time}</span>
                     </li>
                     <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Timezone</span>
-                      <span>{selectedLog.timezone}</span>
+                      {/*  */}
+                      <span className="text-muted-foreground">Agent</span>
+                      <span>{selectedLog.agent}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Duration of Call</span>
                       <span>{calculateDuration(selectedLog.beginTimestamp._seconds, selectedLog.endTimestamp._seconds)}</span>
                     </li>
                   </ul>
-                </div>
+                  </div>
                 <Separator className="my-4" />
                   {/* insert a chat type UI,  */}
                   <ScrollArea className="h-96 chat-container space-y-2 p-2  rounded-lg">
@@ -571,13 +597,48 @@ export default function CallLogs() {
                         <div className="chat-message customer-query  rounded p-2 text-left">
                           <strong>Customer:</strong> {transaction.query}
                         </div>
-                        <hr/>
                         <div className="chat-message agent-response  rounded p-2 text-left">
                           <strong>Agent:</strong> {transaction.response}
                         </div>
                       </div>
                     ))}
                   </ScrollArea>
+                <Separator className="my-4" />
+                {analysisResults && (
+                  <div className="grid gap-3">
+                    <div className="font-semibold">Analysis Results</div>
+                    <ul className="grid gap-3">
+                    <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground">
+                        Summary <span></span>
+                      </span>
+                      <span className="text-right ml-2 pl-6">{analysisResults.summary}</span>
+                    </li>
+                  </ul>
+                  <ul className="grid gap-3">
+                    <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-left">User Sentiment</span>
+                      <span className="text-right pl-6">{analysisResults.userSentiment}</span>
+                    </li>
+                    {/* <li className="flex items-center justify-between ">
+                      <span className="text-muted-foreground text-left">Sentiment Reason</span>
+                      <span className="text-right ml-2 pl-6 ">{analysisResults.sentimentReason}</span>
+                    </li> */}
+                    <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Call Evaluation</span>
+                      <span>{analysisResults.callEvaluation}</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Tags</span>
+                      <div className="flex flex-wrap gap-2 text-right">
+                        {analysisResults.tags.split(',').map((tag: string, index: React.Key | null | undefined) => (
+                          <Badge key={index} variant="default">{tag.trim()}</Badge>
+                        ))}
+                      </div>
+                    </li>
+                  </ul>
+                  </div>
+                )}
                 <Separator className="my-4" />
                 <div className="grid gap-3">
                   <div className="font-semibold">Call end Reason</div>
@@ -595,7 +656,7 @@ export default function CallLogs() {
               </CardContent>
               <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
                 <div className="text-xs text-muted-foreground">
-                  Updated <time dateTime="2023-11-23">June 24, 2024</time>
+                  Updated on <time dateTime="">{formatDate(selectedLog.beginTimestamp._seconds).date}</time>
                 </div>
                 <Pagination className="ml-auto mr-0 w-auto">
                   <PaginationContent>
