@@ -70,6 +70,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Sugar from 'sugar'
 
+import LogsCard from "@/components/callLogs/logsCard"
+
 
 
 export default function CallLogs() {
@@ -78,6 +80,7 @@ export default function CallLogs() {
     const [selectedLog, setSelectedLog] = React.useState<any | null>(null);
     const [copySuccess, setCopySuccess] = React.useState('');
     const [analysisResults, setAnalysisResults] = React.useState<any | null>(null);
+    const [selectedTab, setSelectedTab] = React.useState('week');
 
 
     const formatDate = (timestamp:any) => {
@@ -215,6 +218,24 @@ export default function CallLogs() {
       }
     }
 
+    const filterLogs = (logs:any[], tab:string) => {
+      const now = new Date();
+      return logs.filter(log => {
+        const logDate = new Date(log.beginTimestamp._seconds * 1000);
+        if (tab === 'week') {
+          const oneWeekAgo = new Date(now);
+          oneWeekAgo.setDate(now.getDate() - 7);
+          return logDate >= oneWeekAgo && logDate <= now;
+        } else if (tab === 'month') {
+          return logDate.getMonth() === now.getMonth() && logDate.getFullYear() === now.getFullYear();
+        } else if (tab === 'year') {
+          return logDate.getFullYear() === now.getFullYear();
+        }
+      });
+    };
+
+    const filteredLogs = filterLogs(callLogs, selectedTab);
+
     
   
     // useEffect(()=>{
@@ -342,7 +363,7 @@ export default function CallLogs() {
               </Card>
             </div> */}
             {/* lg:w-[50rem] */}
-            <Tabs defaultValue="week" className="">
+            <Tabs defaultValue="week" className="" onValueChange={setSelectedTab}>
               <div className="flex items-center">
                 <TabsList>
                   <TabsTrigger value="week">Week</TabsTrigger>
@@ -398,20 +419,18 @@ export default function CallLogs() {
                       </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button
+                  {/* <Button
                     size="sm"
                     variant="outline"
                     className="h-7 gap-1 text-sm"
                   >
                     <File className="h-3.5 w-3.5" />
                     <span className="sr-only sm:not-sr-only">Export</span>
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
-              {/* <TabsContent value="month"> */}
-              <TabsContent value="week">
-              {/* <TabsContent value="year"> */}
-                <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-3">
+              <TabsContent value="month">
+              <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-3">
                   <CardHeader className="px-7 sm:col-span-2">
                     <CardTitle>Call Logs</CardTitle>
                     <CardDescription>
@@ -434,7 +453,7 @@ export default function CallLogs() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {callLogs.map((log:any, index:number) => (
+                        {filteredLogs.map((log:any, index:number) => (
                           // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
                           <TableRow key={log.id} className={selectedLog && selectedLog.id === log.id ? 'selected-row' : ''} onClick={() => handleRowClick(log)}>
                             <TableCell>
@@ -487,16 +506,222 @@ export default function CallLogs() {
                         {currentPage}
                       </PaginationLink>
                     </PaginationItem>
-                    {callLogs.length>=10 && (
+                    {filteredLogs.length>=10 && (
                     <PaginationItem>
                       <PaginationLink onClick={()=>navigateToPage(currentPage+1)}>
                         {currentPage+1}
                       </PaginationLink>
                     </PaginationItem>
                     )}
+                    {filteredLogs.length>=10 && (
                     <PaginationItem>
                       <PaginationNext onClick={handleNextPage} aria-disabled={!hasNextPage}>Previous</PaginationNext>
                     </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+                <div className="flex items-center">
+                  <Input
+                    className=""
+                    type="number"
+                    value={inputPage}
+                    onChange={(e) => setInputPage(Number(e.target.value))}
+                    placeholder="Go to page"
+                  />
+                  <Button className="secondary" onClick={() => navigateToPage(Number(inputPage))}>Go</Button>
+                </div>
+              </TabsContent>
+              <TabsContent value="week">
+                <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-3">
+                  <CardHeader className="px-7 sm:col-span-2">
+                    <CardTitle>Call Logs</CardTitle>
+                    <CardDescription>
+                      Recent call details
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="hidden sm:table-cell">Sr.</TableHead>
+                          <TableHead>Phone Number</TableHead>
+                          <TableHead className="hidden sm:table-cell">
+                            Start Time
+                          </TableHead>
+                          <TableHead className="hidden sm:table-cell">
+                            Duration
+                          </TableHead>
+                          <TableHead className="text-right">Agent Used</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredLogs.map((log:any, index:number) => (
+                          // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
+                          <TableRow key={log.id} className={selectedLog && selectedLog.id === log.id ? 'selected-row' : ''} onClick={() => handleRowClick(log)}>
+                            <TableCell>
+                              <div className="font-medium">{((currentPage-1)*10)+index+1}</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{log.callConfig?.from?? '+918445979949'}</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">{log.type}</div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              <div className="font-medium">{formatDate(log.beginTimestamp._seconds).date}</div>
+                              <div className="hidden text-center text-sm text-muted-foreground md:inline">
+                                {formatDate(log.beginTimestamp._seconds).time}
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {calculateDuration(log.beginTimestamp._seconds, log.endTimestamp._seconds)}
+                            </TableCell>
+                            <TableCell className="text-right">{log.agent}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+                <Pagination>
+                  <PaginationContent>
+                  {currentPage-1>0 &&(
+                    <PaginationItem>
+                      <PaginationPrevious onClick={handlePrevPage} aria-disabled={currentPage===1}>Previous</PaginationPrevious>
+                    </PaginationItem>
+                  )}
+                    {currentPage-2>0 &&(
+                    <PaginationItem className="">
+                      <PaginationLink onClick={()=>navigateToPage(currentPage-2)} aria-disabled={currentPage<=0}>
+                        {currentPage-2}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    {currentPage-1>0 &&(
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage-1)} aria-disabled={currentPage<=0}>
+                        {currentPage-1}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage)}>
+                        {currentPage}
+                      </PaginationLink>
+                    </PaginationItem>
+                    {filteredLogs.length>=10 && (
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage+1)}>
+                        {currentPage+1}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    {filteredLogs.length>=10 && (
+                    <PaginationItem>
+                      <PaginationNext onClick={handleNextPage} aria-disabled={!hasNextPage}>Previous</PaginationNext>
+                    </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+                <div className="flex items-center">
+                  <Input
+                    className=""
+                    type="number"
+                    value={inputPage}
+                    onChange={(e) => setInputPage(Number(e.target.value))}
+                    placeholder="Go to page"
+                  />
+                  <Button className="secondary" onClick={() => navigateToPage(Number(inputPage))}>Go</Button>
+                </div>
+              </TabsContent>
+              <TabsContent value="year">
+                <Card x-chunk="dashboard-05-chunk-3" className="sm:col-span-3">
+                  <CardHeader className="px-7 sm:col-span-2">
+                    <CardTitle>Call Logs</CardTitle>
+                    <CardDescription>
+                      Recent call details
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="hidden sm:table-cell">Sr.</TableHead>
+                          <TableHead>Phone Number</TableHead>
+                          <TableHead className="hidden sm:table-cell">
+                            Start Time
+                          </TableHead>
+                          <TableHead className="hidden sm:table-cell">
+                            Duration
+                          </TableHead>
+                          <TableHead className="text-right">Agent Used</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredLogs.map((log:any, index:number) => (
+                          // <TableRow key={log.id} className={log.status === "Error" ? "bg-red-100" : "bg-green-100"}>
+                          <TableRow key={log.id} className={selectedLog && selectedLog.id === log.id ? 'selected-row' : ''} onClick={() => handleRowClick(log)}>
+                            <TableCell>
+                              <div className="font-medium">{((currentPage-1)*10)+index+1}</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{log.callConfig?.from?? '+918445979949'}</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">{log.type}</div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              <div className="font-medium">{formatDate(log.beginTimestamp._seconds).date}</div>
+                              <div className="hidden text-center text-sm text-muted-foreground md:inline">
+                                {formatDate(log.beginTimestamp._seconds).time}
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {calculateDuration(log.beginTimestamp._seconds, log.endTimestamp._seconds)}
+                            </TableCell>
+                            <TableCell className="text-right">{log.agent}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+                <Pagination>
+                  <PaginationContent>
+                  {currentPage-1>0 &&(
+                    <PaginationItem>
+                      <PaginationPrevious onClick={handlePrevPage} aria-disabled={currentPage===1}>Previous</PaginationPrevious>
+                    </PaginationItem>
+                  )}
+                    {currentPage-2>0 &&(
+                    <PaginationItem className="">
+                      <PaginationLink onClick={()=>navigateToPage(currentPage-2)} aria-disabled={currentPage<=0}>
+                        {currentPage-2}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    {currentPage-1>0 &&(
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage-1)} aria-disabled={currentPage<=0}>
+                        {currentPage-1}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage)}>
+                        {currentPage}
+                      </PaginationLink>
+                    </PaginationItem>
+                    {filteredLogs.length>=10 && (
+                    <PaginationItem>
+                      <PaginationLink onClick={()=>navigateToPage(currentPage+1)}>
+                        {currentPage+1}
+                      </PaginationLink>
+                    </PaginationItem>
+                    )}
+                    {filteredLogs.length>=10 && (
+                    <PaginationItem>
+                      <PaginationNext onClick={handleNextPage} aria-disabled={!hasNextPage}>Previous</PaginationNext>
+                    </PaginationItem>
+                    )}
                   </PaginationContent>
                 </Pagination>
                 <div className="flex items-center">

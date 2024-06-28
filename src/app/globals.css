@@ -150,6 +150,12 @@
   background-color: white;
   color: black;
 }
+.selected-row:hover{
+  background-color: white;
+  color: black;
+}
+
+
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-250px);
