@@ -21,9 +21,14 @@ export async function POST(req:Request){
 }
 
 
-async function analyzeCall(conversation:any) {
-    conversation = conversation.toString();
-    console.log(conversation)
+async function analyzeCall(log:any) {
+    const conversationData: any[] = [];
+    log.transactions.forEach((convo: any) => {
+        conversationData.push('customer: ' + convo.query);
+        conversationData.push('agent: ' + convo.response);
+    });
+
+    const conversation = conversationData.join('\n');
 
     const systemPrompt = `
         You are an expert note taker, sentiment analyst, call evaluator, and call categorization specialist. You will be given a transcript of a call between a customer service agent and a customer. Perform the following tasks:

@@ -116,19 +116,13 @@ export default function CallLogs() {
       analyzeSelectedLog(log);
     }
     const analyzeSelectedLog = async (log: any) => {
-      const conversationData: any[] = [];
-      log.transactions.forEach((convo: any) => {
-        conversationData.push('customer: ' + convo.query);
-        conversationData.push('agent: ' + convo.response);
-      });
-
       try {
         const response = await fetch('/api/endCallAnalytics', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ transactions: conversationData })
+          body: JSON.stringify({ transactions: log })
         });
 
         const data = await response.json();
