@@ -836,6 +836,10 @@ export default function CallLogs() {
                   </ul>
                   <ul className="grid gap-3">
                     <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-left">Sentiment Array</span>
+                      <span className="text-right pl-6">{analysisResults.sentimentArray}</span>
+                    </li>
+                    <li className="flex items-center justify-between">
                       <span className="text-muted-foreground text-left">User Sentiment</span>
                       <span className="text-right pl-6">{analysisResults.userSentiment}</span>
                     </li>
