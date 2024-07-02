@@ -40,7 +40,7 @@ export default function AgentSelector() {
                   Agent ID: {agent._ref._path.segments[1]} 
                 </CardDescription>
                 <CardDescription>
-                  LLM Provider: {agent._fieldsProto.llmProvider?.stringValue ?? agent._fieldsProto.llmconfig?.mapValue.fields.provider.stringValue ?? agent._fieldsProto.llmConfig?.mapValue.fields.model.stringValue}
+                  LLM Provider: {agent._fieldsProto.llmProvider?.stringValue ?? agent._fieldsProto.llmconfig?.mapValue.fields.provider.stringValue ?? agent._fieldsProto.llmConfig?.mapValue.fields.model?.stringValue ?? ' '}
                 </CardDescription>
               </CardContent>
               <CardFooter>

@@ -2,65 +2,101 @@ import fs from "fs";
 import path from "path";
 import { createClient } from "@deepgram/sdk";
 import OpenAI from "openai";
+import { v4 as uuidv4 } from 'uuid';
+import { db, bucket } from "@/lib/firebase2";
 
 const openai = new OpenAI();
 openai.apiKey = process.env.OPENAI_API_KEY || '';
 
 export async function POST(req: Request) {
     const data = await req.formData();
-    const file = data.get('file') as File;
-    const tempDir = path.join(process.cwd(), 'temp');
-    
-    // Ensure the temp directory exists
-    if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir);
+    const files = data.getAll('files') as File[];
+    const sessionID = uuidv4();
+    const sessionDir = path.join(process.cwd(), 'uploads', sessionID);
+
+    // Ensure the session directory exists
+    if (!fs.existsSync(sessionDir)) {
+        fs.mkdirSync(sessionDir, { recursive: true });
     }
-
-    const filePath = path.join(tempDir, file.name);
-
-    // Write the uploaded file to the temp directory
-    fs.writeFileSync(filePath, Buffer.from(await file.arrayBuffer()));
 
     try {
         const deepgramApiKey = process.env.DEEPGRAM_API_KEY ?? '';
         const deepgram = createClient(deepgramApiKey);
 
-        const fileBuffer = fs.readFileSync(filePath);
+        const results = [];
 
-        const { result, error } = await deepgram.listen.prerecorded.transcribeFile(
-            fileBuffer,
-            {
-                model: 'nova-2',
-                language: 'hi-Latn',
-                smart_format: true, 
-                punctuate: true, 
-                utterances: true, 
-                // utt_split: 0.8, 
-                keywords: ['Jeeva:5', 'Silver:5', 'Jewelery:5', 'GIVA:2', 'Jiva:3'], 
-                diarize: true, 
-                filler_words: true,
-            },
-        );
+        for (const file of files) {
+            const fileID = uuidv4();
+            const filePath = path.join(sessionDir, file.name);
 
-        if (error) {
-            console.error('Deepgram API error:', error);
+            // Write the uploaded file to the session directory
+            fs.writeFileSync(filePath, Buffer.from(await file.arrayBuffer()));
+
+            const fileBuffer = fs.readFileSync(filePath);
+
+            const { result, error } = await deepgram.listen.prerecorded.transcribeFile(
+                fileBuffer,
+                {
+                    model: 'nova-2',
+                    language: 'hi-Latn',
+                    smart_format: true, 
+                    punctuate: true, 
+                    utterances: true, 
+                    diarize: true, 
+                    filler_words: true,
+                    keywords: ['Jeeva:5', 'Silver:5', 'Jewelery:5', 'GIVA:2', 'Jiva:3'], 
+                },
+            );
+
+            if (error) {
+                console.error('Deepgram API error:', error);
+                fs.unlinkSync(filePath);
+                return new Response(JSON.stringify(`Deepgram API error: ${error.message}`), { status: 500 });
+            }
+
+            const formattedResult: any = result.results.utterances?.map(
+                (utterance: any) => `[Speaker:${utterance.speaker}] ${utterance.transcript}`
+            ).join('\n');
+
+            console.log(formattedResult);
+
+            // Analyze the transcription
+            const analysisResults = await analyzeCall(formattedResult);
+
+            // Upload audio file to Firebase Storage
+            await bucket.upload(filePath, {
+                destination: `voice/${fileID}/${file.name}`
+            });
+
+            // Get the public URL of the uploaded audio file
+            const audioFile = bucket.file(`voice/${fileID}/${file.name}`);
+            const [url] = await audioFile.getSignedUrl({
+                action: 'read',
+                expires: '03-01-2500'
+            });
+
+            // Save the transcript, analysis, and audio file URL to Firestore
+            await db.collection('voice').doc(fileID).set({
+                fileName: file.name,
+                transcript: formattedResult,
+                analysis: analysisResults,
+                audioURL: url,
+                createdAt: Date.now()
+            });
+
+            results.push({
+                fileID,
+                fileName: file.name,
+                transcript: formattedResult,
+                analysis: analysisResults,
+                audioURL: url
+            });
+
+            // Clean up the temp file
             fs.unlinkSync(filePath);
-            return new Response(JSON.stringify(`Deepgram API error: ${error.message}`), { status: 500 });
         }
 
-        const formattedResult:any = result.results.utterances?.map(
-            (utterance: any) => `[Speaker:${utterance.speaker}] ${utterance.transcript}`
-        ).join('\n');
-
-        console.log(formattedResult);
-
-        // Clean up the temp file
-        fs.unlinkSync(filePath);
-
-        // Analyze the transcription
-        const analysisResults = await analyzeCall(formattedResult);
-
-        return new Response(JSON.stringify({ transcript: formattedResult, analysis: analysisResults }), {
+        return new Response(JSON.stringify({ sessionID, results }), {
             headers: { 'Content-Type': 'application/json' }
         });
     } catch (error: any) {

@@ -43,6 +43,19 @@ export const links = [
       },
     ],
   },
+  {
+    title: "Voice",
+    links: [
+      {
+        name: "Call Analysis",
+        address: "deepgram/pre-recorded",
+      },
+      {
+        name: "All Analysis",
+        address: "deepgram/allAnalysis",
+      },
+    ],
+  },
 ];
 
 export const sidebar = [

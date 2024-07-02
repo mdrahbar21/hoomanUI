@@ -1,27 +1,27 @@
-"use client"
+"use client";
 import React from 'react';
 import { AppStateContext } from '@/components/contexts/contextProvider';
 
 const TranscriptionApp = () => {
     const { activeMenu } = AppStateContext();
-    const [file, setFile] = React.useState<any>(null);
-    const [transcript, setTranscript] = React.useState<any>('');
-    const [analysis, setAnalysis] = React.useState<any>('');
+    const [files, setFiles] = React.useState<any[]>([]);
+    const [transcripts, setTranscripts] = React.useState<any[]>([]);
+    const [analysis, setAnalysis] = React.useState<any[]>([]);
     const [error, setError] = React.useState<any>('');
 
-    const handleFileChange = (event:any) => {
-        setFile(event.target.files[0]);
+    const handleFileChange = (event: any) => {
+        setFiles(Array.from(event.target.files));
     };
 
-    const handleSubmit = async (event:any) => {
+    const handleSubmit = async (event: any) => {
         event.preventDefault();
-        if (!file) {
-            setError('Please select a file first.');
+        if (files.length === 0) {
+            setError('Please select files first.');
             return;
         }
 
         const formData = new FormData();
-        formData.append('file', file);
+        files.forEach(file => formData.append('files', file));
 
         try {
             const response = await fetch('/api/deepgram', {
@@ -34,9 +34,9 @@ const TranscriptionApp = () => {
             }
 
             const result = await response.json();
-            setTranscript(result.transcript);
-            setAnalysis(result.analysis);
-        } catch (error:any) {
+            setTranscripts(result.results.map((res: any) => res.transcript));
+            setAnalysis(result.results.map((res: any) => res.analysis));
+        } catch (error: any) {
             setError(`Transcription failed: ${error.message}`);
         }
     };
@@ -48,6 +48,7 @@ const TranscriptionApp = () => {
                 <input
                     type="file"
                     accept="audio/*"
+                    multiple
                     onChange={handleFileChange}
                     className="mb-2 p-2 border rounded"
                 />
@@ -59,20 +60,28 @@ const TranscriptionApp = () => {
                 </button>
             </form>
             {error && <p className="text-red-500">{error}</p>}
-            {transcript && (
+            {transcripts.length > 0 && (
                 <div className="mb-4 max-w-full">
-                    <h2 className="text-xl font-bold text-white">Transcript</h2>
-                    <div className="p-4 bg-gray-100 rounded text-black whitespace-pre-wrap break-words">{transcript}</div>
+                    <h2 className="text-xl font-bold text-white">Transcripts</h2>
+                    {transcripts.map((transcript, index) => (
+                        <div key={index} className="p-4 bg-gray-100 rounded text-black whitespace-pre-wrap break-words mb-2">
+                            <h3 className="font-bold">File {index + 1}:</h3>
+                            {transcript}
+                        </div>
+                    ))}
                 </div>
             )}
-            {analysis && (
+            {analysis.length > 0 && (
                 <div className="max-w-full">
                     <h2 className="text-xl font-bold text-white">Analysis</h2>
-                    <div className="p-4 bg-gray-100 text-black rounded whitespace-pre-wrap break-words">
-                        {JSON.stringify(analysis, null, 2).split('\n').map((line, index) => (
-                            <div key={index}>{line}</div>
-                        ))}
-                    </div>
+                    {analysis.map((result, index) => (
+                        <div key={index} className="p-4 bg-gray-100 text-black rounded whitespace-pre-wrap break-words mb-2">
+                            <h3 className="font-bold">File {index + 1}:</h3>
+                            {JSON.stringify(result, null, 2).split('\n').map((line, idx) => (
+                                <div key={idx}>{line}</div>
+                            ))}
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

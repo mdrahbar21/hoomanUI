@@ -1,0 +1,7 @@
+{
+  "summary": "The customer service agent from Jiva Clinic Jewelry called to inform Priya about products added to her cart on the Jiva application that were not purchased. The agent offered a 15% discount coupon code valid for 7 days for Priya to use if she decides to order the products.",
+  "userSentiment": "Positive",
+  "sentimentReason": "The customer service agent was polite, offered assistance, and provided a discount coupon code for the customer.",
+  "callEvaluation": "Successful",
+  "tags": "Abandoned cart calling"
+}

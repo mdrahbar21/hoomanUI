@@ -1,0 +1,7 @@
+{
+  "summary": "The customer received a call from a representative of a jewelry store inquiring about a silver pendant that was in the customer's cart but not yet ordered. The customer mentioned they had not confirmed the purchase yet and the representative offered a discount coupon to encourage the purchase.",
+  "userSentiment": "Positive",
+  "sentimentReason": "The customer's tone remained polite and receptive throughout the call, showing interest in the discount offered.",
+  "callEvaluation": "Successful",
+  "tags": "Abandoned cart calling"
+}
