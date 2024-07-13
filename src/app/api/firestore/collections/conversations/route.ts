@@ -1,4 +1,4 @@
-import db from '@/lib/firebase2';
+import {db} from '@/lib/firebase2';
 
 export async function POST(req: Request) {
   const { searchParams } = new URL(req.url);

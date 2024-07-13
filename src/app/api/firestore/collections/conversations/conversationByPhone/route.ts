@@ -1,4 +1,4 @@
-import db from '@/lib/firebase2';
+import {db} from '@/lib/firebase2';
 import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(req: Request) {

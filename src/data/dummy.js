@@ -15,6 +15,7 @@ export const links = [
       {
         name: "Agents",
         address: "main/agents",
+        // icon: ""
       },
       {
         name: "Knowledge Base",
